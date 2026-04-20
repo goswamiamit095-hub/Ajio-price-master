@@ -1,53 +1,117 @@
-const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSuN06WhR8p5bs-Jl0_8wZgqudAT14tG5LAOGi26lgWYXNIhgb0RrCzpt3svlChfaC3Q1WoOoujXjXU/pub?gid=287836236&single=true&output=csv";
+// 🔗 SHEET LINKS
+const inputURL = "https://api.allorigins.win/raw?url=https://docs.google.com/spreadsheets/d/1IAxE3UoG-sghflJw4ZQYfmsdEDhQEj0ViYtIuxEy0Yk/export?format=csv&gid=287836236";
+
+const exportURL = "https://api.allorigins.win/raw?url=https://docs.google.com/spreadsheets/d/1IAxE3UoG-sghflJw4ZQYfmsdEDhQEj0ViYtIuxEy0Yk/export?format=csv&gid=1736969456";
 
 let globalData = [];
+let exportHeaders = [];
 
+// 🚀 MAIN LOAD
 async function loadData() {
-  const res = await fetch(sheetURL);
-  const text = await res.text();
 
-  Papa.parse(text, {
+  // 👉 1. EXPORT SHEET (structure)
+  const expRes = await fetch(exportURL);
+  const expText = await expRes.text();
+
+  Papa.parse(expText, {
     header: true,
     skipEmptyLines: true,
-    complete: function(results) {
+    complete: function(expResult) {
 
-      let data = results.data;
-      let marginInput = parseFloat(document.getElementById("margin")?.value || -10) / 100;
+      exportHeaders = expResult.meta.fields;
 
-      globalData = [];
-      let brands = new Set();
-      let statuses = new Set();
+      // 👉 2. INPUT SHEET (data)
+      fetch(inputURL)
+        .then(res => res.text())
+        .then(text => {
 
-      data.forEach(row => {
-        let tp = parseFloat(row["TP"]);
-        if (!tp || isNaN(tp)) return;
+          Papa.parse(text, {
+            header: true,
+            skipEmptyLines: true,
+            complete: function(result) {
 
-        let sp = findSP(tp, marginInput);
-        let mrp = sp * 1.6;
-        let diff = mrp - sp;
+              processData(result.data);
+            }
+          });
 
-        let item = {
-          product: row["ERP SKU"],
-          brand: row["Brand"],
-          status: row["Status"],
-          tp,
-          sp,
-          mrp,
-          diff,
-          jio: row["Jio Code"]
-        };
-
-        brands.add(item.brand);
-        statuses.add(item.status);
-        globalData.push(item);
-      });
-
-      populateFilters(brands, statuses);
-      renderTable(globalData);
+        });
     }
   });
 }
 
+// 🧠 PROCESS DATA
+function processData(data) {
+
+  let marginInput = parseFloat(document.getElementById("margin")?.value || -10) / 100;
+
+  globalData = [];
+  let brands = new Set();
+  let statuses = new Set();
+
+  data.forEach(row => {
+
+    let tp = parseFloat(row["TP"]);
+    if (!tp) return;
+
+    let sp = findSP(tp, marginInput);
+    let mrp = sp * 1.6;
+    let diff = mrp - sp;
+
+    let item = {
+      raw: row,
+      sp,
+      mrp,
+      diff
+    };
+
+    brands.add(row["Brand"]);
+    statuses.add(row["Status"]);
+
+    globalData.push(item);
+  });
+
+  populateFilters(brands, statuses);
+  renderTable(globalData);
+}
+
+// 🎯 TABLE RENDER (EXPORT FORMAT)
+function renderTable(data) {
+  let el = document.getElementById("table");
+  if (!el) return;
+
+  let html = "<table><tr>";
+
+  // EXPORT HEADERS
+  exportHeaders.forEach(h => {
+    html += `<th>${h}</th>`;
+  });
+
+  // EXTRA
+  html += "<th>SP</th><th>MRP</th><th>Diff</th>";
+
+  html += "</tr>";
+
+  data.forEach(d => {
+    html += "<tr>";
+
+    exportHeaders.forEach(h => {
+      html += `<td>${d.raw[h] || ""}</td>`;
+    });
+
+    html += `
+      <td>${d.sp}</td>
+      <td>${d.mrp.toFixed(2)}</td>
+      <td>${d.diff.toFixed(2)}</td>
+    `;
+
+    html += "</tr>";
+  });
+
+  html += "</table>";
+  el.innerHTML = html;
+}
+
+// 🎛️ FILTERS
 function populateFilters(brands, statuses) {
   let b = document.getElementById("brandFilter");
   let s = document.getElementById("statusFilter");
@@ -63,48 +127,34 @@ function populateFilters(brands, statuses) {
 
 document.addEventListener("change", function(e) {
   if (e.target.id === "brandFilter" || e.target.id === "statusFilter") {
+
     let brand = document.getElementById("brandFilter").value;
     let status = document.getElementById("statusFilter").value;
 
     let filtered = globalData.filter(d =>
-      (!brand || d.brand === brand) &&
-      (!status || d.status === status)
+      (!brand || d.raw["Brand"] === brand) &&
+      (!status || d.raw["Status"] === status)
     );
 
     renderTable(filtered);
   }
 });
 
-function renderTable(data) {
-  let el = document.getElementById("table");
-  if (!el) return;
-
-  let html = "<table><tr><th>ERP SKU</th><th>Brand</th><th>Status</th><th>TP</th><th>SP</th><th>MRP</th><th>Diff</th></tr>";
-
-  data.forEach(d => {
-    html += `<tr>
-      <td>${d.product}</td>
-      <td>${d.brand}</td>
-      <td>${d.status}</td>
-      <td>${d.tp}</td>
-      <td>${d.sp}</td>
-      <td>${d.mrp.toFixed(2)}</td>
-      <td>${d.diff.toFixed(2)}</td>
-    </tr>`;
-  });
-
-  html += "</table>";
-  el.innerHTML = html;
-}
-
+// 📤 EXPORT
 function exportExcel() {
-  const ws = XLSX.utils.json_to_sheet(globalData);
+  const ws = XLSX.utils.json_to_sheet(globalData.map(d => ({
+    ...d.raw,
+    SP: d.sp,
+    MRP: d.mrp,
+    Diff: d.diff
+  })));
+
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Pricing");
   XLSX.writeFile(wb, "pricing.xlsx");
 }
 
-/* ===== CALC ===== */
+/* ===== CALC ENGINE ===== */
 
 function calcAll(SP, TP) {
   let commission = Math.max(SP * 0.36, 180);
