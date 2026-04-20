@@ -6,51 +6,46 @@ async function loadData() {
   const res = await fetch(sheetURL);
   const text = await res.text();
 
-  let rows = text.split("\n").map(r => r.split(","));
-  let headers = rows[0].map(h => h.trim());
+  Papa.parse(text, {
+    header: true,
+    skipEmptyLines: true,
+    complete: function(results) {
 
-  let index = {
-    product: headers.indexOf("ERP SKU"),
-    brand: headers.indexOf("Brand"),
-    status: headers.indexOf("Status"),
-    tp: headers.indexOf("TP"),
-    jio: headers.indexOf("Jio Code")
-  };
+      let data = results.data;
+      let marginInput = parseFloat(document.getElementById("margin")?.value || -10) / 100;
 
-  let marginInput = parseFloat(document.getElementById("margin")?.value || -10) / 100;
+      globalData = [];
+      let brands = new Set();
+      let statuses = new Set();
 
-  globalData = [];
-  let brands = new Set();
-  let statuses = new Set();
+      data.forEach(row => {
+        let tp = parseFloat(row["TP"]);
+        if (!tp || isNaN(tp)) return;
 
-  for (let i = 1; i < rows.length; i++) {
-    let row = rows[i];
+        let sp = findSP(tp, marginInput);
+        let mrp = sp * 1.6;
+        let diff = mrp - sp;
 
-    let tp = parseFloat(row[index.tp]);
-    if (!tp) continue;
+        let item = {
+          product: row["ERP SKU"],
+          brand: row["Brand"],
+          status: row["Status"],
+          tp,
+          sp,
+          mrp,
+          diff,
+          jio: row["Jio Code"]
+        };
 
-    let sp = findSP(tp, marginInput);
-    let mrp = sp * 1.6;
-    let diff = mrp - sp;
+        brands.add(item.brand);
+        statuses.add(item.status);
+        globalData.push(item);
+      });
 
-    let item = {
-      product: row[index.product],
-      brand: row[index.brand],
-      status: row[index.status],
-      tp,
-      sp,
-      mrp,
-      diff,
-      jio: row[index.jio]
-    };
-
-    brands.add(item.brand);
-    statuses.add(item.status);
-    globalData.push(item);
-  }
-
-  populateFilters(brands, statuses);
-  renderTable(globalData);
+      populateFilters(brands, statuses);
+      renderTable(globalData);
+    }
+  });
 }
 
 function populateFilters(brands, statuses) {
@@ -109,7 +104,7 @@ function exportExcel() {
   XLSX.writeFile(wb, "pricing.xlsx");
 }
 
-/* ===== CORE CALC ===== */
+/* ===== CALC ===== */
 
 function calcAll(SP, TP) {
   let commission = Math.max(SP * 0.36, 180);
