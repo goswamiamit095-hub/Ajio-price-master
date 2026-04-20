@@ -1,7 +1,7 @@
 // 🔗 SHEET LINKS
 const inputURL = "https://docs.google.com/spreadsheets/d/1IAxE3UoG-sghflJw4ZQYfmsdEDhQEj0ViYtIuxEy0Yk/edit?gid=287836236#gid=287836236";
 
-const exportURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSuN06WhR8p5bs-Jl0_8wZgqudAT14tG5LAOGi26lgWYXNIhgb0RrCzpt3svlChfaC3Q1WoOoujXjXU/pub?output=csv";
+const exportURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSuN06WhR8p5bs-Jl0_8wZgqudAT14tG5LAOGi26lgWYXNIhgb0RrCzpt3svlChfaC3Q1WoOoujXjXU/pub?gid=1736969456&single=true&output=csv";
 
 let globalData = [];
 let exportHeaders = [];
