@@ -2,23 +2,30 @@ function calculate() {
   let TP = parseFloat(document.getElementById("tp").value);
   let targetMargin = parseFloat(document.getElementById("margin").value) / 100;
 
+  if (isNaN(TP) || isNaN(targetMargin)) {
+    document.getElementById("result").innerText = "";
+    document.getElementById("details").innerHTML = "";
+    return;
+  }
+
   let sp = findSP(TP, targetMargin);
   let breakdown = calcFull(sp, TP);
 
   document.getElementById("result").innerText = "SP = " + sp;
 
   document.getElementById("details").innerHTML = `
-    Commission: ${breakdown.commission}<br>
-    Tax: ${breakdown.tax}<br>
-    Marketing: ${breakdown.marketing}<br>
+    <b>Breakdown:</b><br>
+    Commission: ${breakdown.commission.toFixed(2)}<br>
+    Tax: ${breakdown.tax.toFixed(2)}<br>
+    Marketing: ${breakdown.marketing.toFixed(2)}<br>
     Dispatch: ${breakdown.dispatch}<br>
-    Net Payout: ${breakdown.net}<br>
+    Net Payout: ${breakdown.net.toFixed(2)}<br>
     Margin: ${(breakdown.margin * 100).toFixed(2)}%
   `;
 }
-
 function calcFull(SP, TP) {
   let commission = Math.max(SP * 0.36, 180);
+
   let taxable = SP / 1.05;
   let tax = taxable * 0.05;
 
@@ -27,9 +34,11 @@ function calcFull(SP, TP) {
   let invoiceValue = purchaseValue + purchaseGST;
 
   let marketing = SP * 0.03;
+
   let dispatch = SP < 500 ? 25 : SP < 1000 ? 30 : 35;
 
   let net = invoiceValue - marketing - dispatch;
+
   let margin = (net - TP) / TP;
 
   return { commission, tax, marketing, dispatch, net, margin };
