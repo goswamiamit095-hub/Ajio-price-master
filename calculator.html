@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Calculator</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="nav">
+  <a href="index.html">Dashboard</a>
+  <a href="search.html">Search SKU</a>
+  <a href="calculator.html" class="active">Calculator</a>
+</div>
+
+<h2>Single Calculator</h2>
+
+<input id="tp" placeholder="Enter TP">
+<input id="marginSingle" placeholder="Margin %">
+
+<button onclick="calcSingle()">Calculate</button>
+
+<h3 id="out"></h3>
+
+<script src="script.js"></script>
+<script>
+function calcSingle() {
+  let tp = parseFloat(document.getElementById("tp").value);
+  let m = parseFloat(document.getElementById("marginSingle").value) / 100;
+
+  if (!tp || isNaN(m)) return;
+
+  let sp = findSP(tp, m);
+  let mrp = sp * 1.6;
+
+  document.getElementById("out").innerText =
+    `SP = ${sp} | MRP = ${mrp.toFixed(2)}`;
+}
+</script>
+
+</body>
+</html>
