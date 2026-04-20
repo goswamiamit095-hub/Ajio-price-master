@@ -1,26 +1,47 @@
-<div class="container">
+<div class="Price calculator">
 
-<h1>Pricing Calculator</h1>
+<h2>Pricing Calculator</h2>
 
+<div class="inputs">
 <label>TP</label>
 <input type="number" id="tp">
 
 <label>Target Margin (%)</label>
-<input type="number" id="margin">
+<input type="number" id="target">
 
 <button onclick="calculate()">Calculate SP</button>
-
-<div class="result">
-SP = 2466
 </div>
 
-<div class="breakup">
-Commission 887.76 <br>
-Tax 117.43 <br>
-Marketing 73.98 <br>
-Dispatch 35 <br>
-Net Payout 1424.87 <br>
-Margin -5.01%
-</div>
+<table class="result-table">
+
+<thead>
+<tr>
+<th>SP</th>
+<th>Ajio Margin</th>
+<th>GST1</th>
+<th>Purchase Price</th>
+<th>GST2</th>
+<th>Invoice</th>
+<th>Marketing</th>
+<th>Dispatch</th>
+<th>Payout</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td id="sp"></td>
+<td id="margin"></td>
+<td id="gst1"></td>
+<td id="pp"></td>
+<td id="gst2"></td>
+<td id="invoice"></td>
+<td id="marketing"></td>
+<td id="dispatch"></td>
+<td id="payout"></td>
+</tr>
+</tbody>
+
+</table>
 
 </div>
