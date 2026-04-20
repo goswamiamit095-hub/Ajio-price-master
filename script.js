@@ -1,4 +1,4 @@
-const sheetURL = "https://docs.google.com/spreadsheets/d/1IAxE3UoG-sghflJw4ZQYfmsdEDhQEj0ViYtIuxEy0Yk/export?format=csv&gid=287836236";
+const sheetURL = "https://api.allorigins.win/raw?url=https://docs.google.com/spreadsheets/d/1IAxE3UoG-sghflJw4ZQYfmsdEDhQEj0ViYtIuxEy0Yk/export?format=csv&gid=287836236";
 
 let globalData = [];
 
@@ -7,32 +7,46 @@ async function loadData() {
   const text = await res.text();
 
   let rows = text.split("\n").map(r => r.split(","));
+  let headers = rows[0].map(h => h.trim());
+
+  let index = {
+    product: headers.indexOf("ERP SKU"),
+    brand: headers.indexOf("Brand"),
+    status: headers.indexOf("Status"),
+    tp: headers.indexOf("TP"),
+    jio: headers.indexOf("Jio Code")
+  };
 
   let marginInput = parseFloat(document.getElementById("margin")?.value || -10) / 100;
 
   globalData = [];
-
   let brands = new Set();
   let statuses = new Set();
 
   for (let i = 1; i < rows.length; i++) {
     let row = rows[i];
 
-    let product = row[0];
-    let brand = row[1];
-    let status = row[2];
-    let tp = parseFloat(row[3]);
-
+    let tp = parseFloat(row[index.tp]);
     if (!tp) continue;
 
     let sp = findSP(tp, marginInput);
     let mrp = sp * 1.6;
     let diff = mrp - sp;
 
-    brands.add(brand);
-    statuses.add(status);
+    let item = {
+      product: row[index.product],
+      brand: row[index.brand],
+      status: row[index.status],
+      tp,
+      sp,
+      mrp,
+      diff,
+      jio: row[index.jio]
+    };
 
-    globalData.push({ product, brand, status, tp, sp, mrp, diff });
+    brands.add(item.brand);
+    statuses.add(item.status);
+    globalData.push(item);
   }
 
   populateFilters(brands, statuses);
@@ -40,33 +54,29 @@ async function loadData() {
 }
 
 function populateFilters(brands, statuses) {
-  let brandSelect = document.getElementById("brandFilter");
-  let statusSelect = document.getElementById("statusFilter");
+  let b = document.getElementById("brandFilter");
+  let s = document.getElementById("statusFilter");
 
-  if (!brandSelect) return;
+  if (!b) return;
 
-  brandSelect.innerHTML = `<option value="">All Brands</option>`;
-  statusSelect.innerHTML = `<option value="">All Status</option>`;
+  b.innerHTML = `<option value="">All Brands</option>`;
+  s.innerHTML = `<option value="">All Status</option>`;
 
-  brands.forEach(b => brandSelect.innerHTML += `<option>${b}</option>`);
-  statuses.forEach(s => statusSelect.innerHTML += `<option>${s}</option>`);
-}
-
-function applyFilter() {
-  let brand = document.getElementById("brandFilter").value;
-  let status = document.getElementById("statusFilter").value;
-
-  let filtered = globalData.filter(d =>
-    (!brand || d.brand === brand) &&
-    (!status || d.status === status)
-  );
-
-  renderTable(filtered);
+  brands.forEach(v => b.innerHTML += `<option>${v}</option>`);
+  statuses.forEach(v => s.innerHTML += `<option>${v}</option>`);
 }
 
 document.addEventListener("change", function(e) {
   if (e.target.id === "brandFilter" || e.target.id === "statusFilter") {
-    applyFilter();
+    let brand = document.getElementById("brandFilter").value;
+    let status = document.getElementById("statusFilter").value;
+
+    let filtered = globalData.filter(d =>
+      (!brand || d.brand === brand) &&
+      (!status || d.status === status)
+    );
+
+    renderTable(filtered);
   }
 });
 
@@ -74,7 +84,7 @@ function renderTable(data) {
   let el = document.getElementById("table");
   if (!el) return;
 
-  let html = "<table><tr><th>Product</th><th>Brand</th><th>Status</th><th>TP</th><th>SP</th><th>MRP</th><th>Diff</th></tr>";
+  let html = "<table><tr><th>ERP SKU</th><th>Brand</th><th>Status</th><th>TP</th><th>SP</th><th>MRP</th><th>Diff</th></tr>";
 
   data.forEach(d => {
     html += `<tr>
@@ -99,7 +109,7 @@ function exportExcel() {
   XLSX.writeFile(wb, "pricing.xlsx");
 }
 
-/* ===== PRICING ENGINE ===== */
+/* ===== CORE CALC ===== */
 
 function calcAll(SP, TP) {
   let commission = Math.max(SP * 0.36, 180);
@@ -116,7 +126,7 @@ function calcAll(SP, TP) {
   let net = invoiceValue - marketing - dispatch;
   let margin = (net - TP) / TP;
 
-  return { margin };
+  return { commission, tax, marketing, dispatch, net, margin };
 }
 
 function findSP(TP, targetMargin) {
