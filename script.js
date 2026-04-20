@@ -14,14 +14,15 @@ function calculate() {
   document.getElementById("result").innerText = "SP = " + sp;
 
   document.getElementById("details").innerHTML = `
-    <b>Breakdown:</b><br>
-    Commission: ${breakdown.commission.toFixed(2)}<br>
-    Tax: ${breakdown.tax.toFixed(2)}<br>
-    Marketing: ${breakdown.marketing.toFixed(2)}<br>
-    Dispatch: ${breakdown.dispatch}<br>
-    Net Payout: ${breakdown.net.toFixed(2)}<br>
-    Margin: ${(breakdown.margin * 100).toFixed(2)}%
-  `;
+  <table>
+<tr><td>Commission</td><td>${breakdown.commission.toFixed(2)}</td></tr>
+<tr><td>Tax</td><td>${breakdown.tax.toFixed(2)}</td></tr>
+<tr><td>Marketing</td><td>${breakdown.marketing.toFixed(2)}</td></tr>
+<tr><td>Dispatch</td><td>${breakdown.dispatch}</td></tr>
+<tr><td>Net Payout</td><td>${breakdown.net.toFixed(2)}</td></tr>
+<tr><td>Margin</td><td>${(breakdown.margin * 100).toFixed(2)}%</td></tr>
+</table>
+`;
 }
 function calcFull(SP, TP) {
   let commission = Math.max(SP * 0.36, 180);
@@ -77,3 +78,5 @@ function calcMargin(SP, TP) {
 
   return (netPayout - TP) / TP;
 }
+document.getElementById("tp").addEventListener("input", calculate);
+document.getElementById("margin").addEventListener("input", calculate);
