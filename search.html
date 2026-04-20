@@ -8,26 +8,28 @@
 
 <div class="nav">
   <a href="index.html">Dashboard</a>
-  <a href="search.html" class="active">Search SKU</a>
+  <a href="search.html" class="active">Search</a>
   <a href="calculator.html">Calculator</a>
 </div>
 
 <h2>Search Product</h2>
 
-<input type="text" id="searchInput" placeholder="Enter SKU / Product Name">
+<input id="searchInput" placeholder="ERP SKU / Jio Code">
 <button onclick="searchProduct()">Search</button>
 
 <pre id="result"></pre>
 
 <script src="script.js"></script>
+
 <script>
 async function searchProduct() {
-  await loadData(); // ensure data loaded
+  await loadData();
 
   let val = document.getElementById("searchInput").value.toLowerCase();
 
   let found = globalData.find(d =>
-    d.product.toLowerCase().includes(val)
+    d.product?.toLowerCase().includes(val) ||
+    d.jio?.toLowerCase().includes(val)
   );
 
   document.getElementById("result").innerText =
