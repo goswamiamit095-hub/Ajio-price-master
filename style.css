@@ -21,14 +21,10 @@ body {
   border-bottom: 2px solid yellow;
 }
 
-h1, h2 {
-  text-align: center;
-}
-
 .controls {
-  margin: 20px 0;
   display: flex;
   gap: 10px;
+  margin: 20px 0;
 }
 
 input, select, button {
