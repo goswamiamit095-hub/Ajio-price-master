@@ -1,4 +1,4 @@
-const sheetURL = "https://api.allorigins.win/raw?url=https://docs.google.com/spreadsheets/d/1IAxE3UoG-sghflJw4ZQYfmsdEDhQEj0ViYtIuxEy0Yk/export?format=csv&gid=287836236";
+const sheetURL = "https://docs.google.com/spreadsheets/d/1IAxE3UoG-sghflJw4ZQYfmsdEDhQEj0ViYtIuxEy0Yk/export?format=csv&gid=287836236";
 
 let globalData = [];
 
