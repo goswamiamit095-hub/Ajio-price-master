@@ -1,28 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>TP → SP Calculator</title>
-  <style>
-    body { font-family: Arial; padding: 20px; }
-    input, button { padding: 10px; margin: 10px 0; width: 200px; }
-    h2 { color: green; }
-  </style>
-</head>
-<body>
-
-  <h1>Pricing Calculator</h1>
-
-  <label>TP:</label><br>
-  <input type="number" id="tp" placeholder="Enter TP"><br>
-
-  <label>Target Margin (%):</label><br>
-  <input type="number" id="margin" placeholder="-10 or -15"><br>
-
-  <button onclick="calculate()">Calculate SP</button>
-
-  <h2 id="result"></h2>
-
-<script>
 function calculate() {
   let TP = parseFloat(document.getElementById("tp").value);
   let targetMargin = parseFloat(document.getElementById("margin").value) / 100;
@@ -64,7 +39,3 @@ function calcMargin(SP, TP) {
 
   return (netPayout - TP) / TP;
 }
-</script>
-
-</body>
-</html>
