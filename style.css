@@ -1,31 +1,63 @@
-body {
-  font-family: Arial;
-  background: #f4f4f4;
-  padding: 20px;
+body{
+font-family:Segoe UI;
+background:#f5f7fb;
+display:flex;
+justify-content:center;
+padding:40px;
 }
 
-input {
-  padding: 10px;
-  margin: 5px 0;
-  width: 220px;
+.container{
+background:white;
+padding:30px;
+width:320px;
+border-radius:12px;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
 }
 
-button {
-  padding: 10px 15px;
-  background: green;
-  color: white;
-  border: none;
-  cursor: pointer;
+h1{
+font-size:22px;
+margin-bottom:20px;
 }
 
-#result {
-  font-size: 24px;
-  color: darkblue;
+label{
+font-size:14px;
+color:#555;
 }
 
-#details {
-  background: white;
-  padding: 10px;
-  margin-top: 10px;
-  border-radius: 5px;
+input{
+width:100%;
+padding:10px;
+margin-top:5px;
+margin-bottom:15px;
+border:1px solid #ddd;
+border-radius:6px;
+}
+
+button{
+background:#2563eb;
+color:white;
+border:none;
+padding:10px;
+width:100%;
+border-radius:6px;
+cursor:pointer;
+font-weight:600;
+}
+
+button:hover{
+background:#1d4ed8;
+}
+
+.result{
+font-size:24px;
+color:#1e40af;
+font-weight:bold;
+margin:20px 0;
+}
+
+.breakup{
+background:#f8fafc;
+padding:15px;
+border-radius:8px;
+line-height:28px;
 }
