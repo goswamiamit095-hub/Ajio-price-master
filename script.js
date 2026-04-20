@@ -3,27 +3,22 @@ function calculate() {
   let targetMargin = parseFloat(document.getElementById("margin").value) / 100;
 
   let sp = findSP(TP, targetMargin);
+  let breakdown = calcFull(sp, TP);
 
   document.getElementById("result").innerText = "SP = " + sp;
+
+  document.getElementById("details").innerHTML = `
+    Commission: ${breakdown.commission}<br>
+    Tax: ${breakdown.tax}<br>
+    Marketing: ${breakdown.marketing}<br>
+    Dispatch: ${breakdown.dispatch}<br>
+    Net Payout: ${breakdown.net}<br>
+    Margin: ${(breakdown.margin * 100).toFixed(2)}%
+  `;
 }
 
-function findSP(TP, targetMargin) {
-  let low = 200, high = 5000, sp;
-
-  for (let i = 0; i < 30; i++) {
-    sp = (low + high) / 2;
-    let margin = calcMargin(sp, TP);
-
-    if (margin > targetMargin) high = sp;
-    else low = sp;
-  }
-
-  return Math.round(sp);
-}
-
-function calcMargin(SP, TP) {
+function calcFull(SP, TP) {
   let commission = Math.max(SP * 0.36, 180);
-
   let taxable = SP / 1.05;
   let tax = taxable * 0.05;
 
@@ -32,10 +27,10 @@ function calcMargin(SP, TP) {
   let invoiceValue = purchaseValue + purchaseGST;
 
   let marketing = SP * 0.03;
-
   let dispatch = SP < 500 ? 25 : SP < 1000 ? 30 : 35;
 
-  let netPayout = invoiceValue - marketing - dispatch;
+  let net = invoiceValue - marketing - dispatch;
+  let margin = (net - TP) / TP;
 
-  return (netPayout - TP) / TP;
+  return { commission, tax, marketing, dispatch, net, margin };
 }
