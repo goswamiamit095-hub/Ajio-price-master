@@ -1,25 +1,26 @@
+<div class="container">
 
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Pricing Calculator</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+<h1>Pricing Calculator</h1>
 
-  <h1>Pricing Calculator</h1>
+<label>TP</label>
+<input type="number" id="tp">
 
-  <label>TP:</label><br>
-  <input type="number" id="tp"><br>
+<label>Target Margin (%)</label>
+<input type="number" id="margin">
 
-  <label>Target Margin (%):</label><br>
-  <input type="number" id="margin"><br>
+<button onclick="calculate()">Calculate SP</button>
 
-  <button onclick="calculate()">Calculate SP</button>
+<div class="result">
+SP = 2466
+</div>
 
-  <h2 id="result"></h2>
-  <div id="details"></div>
+<div class="breakup">
+Commission 887.76 <br>
+Tax 117.43 <br>
+Marketing 73.98 <br>
+Dispatch 35 <br>
+Net Payout 1424.87 <br>
+Margin -5.01%
+</div>
 
-  <script src="script.js"></script>
-</body>
-</html>
+</div>
