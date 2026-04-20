@@ -1,24 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Pricing Calculator</title>
+  <title>Pricing Dashboard</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <h1>Pricing Calculator</h1>
+<div class="nav">
+  <a href="index.html" class="active">Dashboard</a>
+  <a href="search.html">Search SKU</a>
+  <a href="calculator.html">Calculator</a>
+</div>
 
-  <label>TP:</label><br>
-  <input type="number" id="tp"><br>
+<h1>Bulk Pricing Tool</h1>
 
-  <label>Target Margin (%):</label><br>
-  <input type="number" id="margin"><br>
+<div class="controls">
+  <input type="number" id="margin" placeholder="Margin % (e.g. -10)">
+  
+  <select id="brandFilter">
+    <option value="">All Brands</option>
+  </select>
 
-  <button onclick="calculate()">Calculate SP</button>
+  <select id="statusFilter">
+    <option value="">All Status</option>
+  </select>
 
-  <h2 id="result"></h2>
-  <div id="details"></div>
+  <button onclick="loadData()">Load Data</button>
+  <button onclick="exportExcel()">Download Excel</button>
+</div>
 
-  <script src="script.js"></script>
+<div id="table"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
