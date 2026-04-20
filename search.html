@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Search SKU</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="nav">
+  <a href="index.html">Dashboard</a>
+  <a href="search.html" class="active">Search SKU</a>
+  <a href="calculator.html">Calculator</a>
+</div>
+
+<h2>Search Product</h2>
+
+<input type="text" id="searchInput" placeholder="Enter SKU / Product Name">
+<button onclick="searchProduct()">Search</button>
+
+<pre id="result"></pre>
+
+<script src="script.js"></script>
+<script>
+async function searchProduct() {
+  await loadData(); // ensure data loaded
+
+  let val = document.getElementById("searchInput").value.toLowerCase();
+
+  let found = globalData.find(d =>
+    d.product.toLowerCase().includes(val)
+  );
+
+  document.getElementById("result").innerText =
+    found ? JSON.stringify(found, null, 2) : "Not Found";
+}
+</script>
+
+</body>
+</html>
