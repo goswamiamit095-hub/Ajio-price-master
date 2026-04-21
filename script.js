@@ -1,193 +1,67 @@
-// 🔗 SHEET LINKS
-const inputURL = "https://docs.google.com/spreadsheets/d/1IAxE3UoG-sghflJw4ZQYfmsdEDhQEj0ViYtIuxEy0Yk/edit?gid=287836236#gid=287836236";
-
-const exportURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSuN06WhR8p5bs-Jl0_8wZgqudAT14tG5LAOGi26lgWYXNIhgb0RrCzpt3svlChfaC3Q1WoOoujXjXU/pub?gid=1736969456&single=true&output=csv";
+const sheetURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSuN06WhR8p5bs-Jl0_8wZgqudAT14tG5LAOGi26lgWYXNIhgb0RrCzpt3svlChfaC3Q1WoOoujXjXU/pub?gid=287836236&single=true&output=csv";
 
 let globalData = [];
-let exportHeaders = [];
 
-// 🚀 MAIN LOAD
 async function loadData() {
+  let res = await fetch(sheetURL);
+  let text = await res.text();
 
-  // 👉 1. EXPORT SHEET (structure)
-  const expRes = await fetch(exportURL);
-  const expText = await expRes.text();
-
-  Papa.parse(expText, {
+  Papa.parse(text, {
     header: true,
     skipEmptyLines: true,
-    complete: function(expResult) {
+    complete: function(result) {
 
-      exportHeaders = expResult.meta.fields;
+      let margin = parseFloat(document.getElementById("margin").value || -10) / 100;
 
-      // 👉 2. INPUT SHEET (data)
-      fetch(inputURL)
-        .then(res => res.text())
-        .then(text => {
+      globalData = result.data.map(r => processRow(r, margin));
 
-          Papa.parse(text, {
-            header: true,
-            skipEmptyLines: true,
-            complete: function(result) {
-
-              processData(result.data);
-            }
-          });
-
-        });
+      populateFilters();
+      renderTable(globalData);
     }
   });
 }
 
-// 🧠 PROCESS DATA
-function processData(data) {
+function processRow(r, margin) {
 
-  let marginInput = parseFloat(document.getElementById("margin")?.value || -10) / 100;
+  let TP = parseFloat(r["TP"]);
+  if (!TP) return null;
 
-  globalData = [];
-  let brands = new Set();
-  let statuses = new Set();
+  let SP = findSP(TP, margin);
+  let MRP = SP / 0.4;
 
-  data.forEach(row => {
+  let BAU_TD = 1 - SP/MRP;
+  let TD_Amount = MRP - SP;
 
-    let tp = parseFloat(row["TP"]);
-    if (!tp) return;
+  let commission = Math.max(SP*0.36, 180);
+  let GST1 = Math.round((SP/1.05)*0.05);
 
-    let sp = findSP(tp, marginInput);
-    let mrp = sp * 1.6;
-    let diff = mrp - sp;
+  let purchase = SP - commission - GST1;
+  let GST2 = Math.round(purchase*0.05);
 
-    let item = {
-      raw: row,
-      sp,
-      mrp,
-      diff
-    };
+  let invoice = purchase + GST2;
+  let marketing = SP*0.03*1.18;
 
-    brands.add(row["Brand"]);
-    statuses.add(row["Status"]);
+  let dispatch = SP<500?25:SP<1000?30:35;
 
-    globalData.push(item);
-  });
+  let payout = invoice - marketing - dispatch;
 
-  populateFilters(brands, statuses);
-  renderTable(globalData);
-}
+  let diff = payout - TP;
+  let diffPct = (diff/TP)*100;
 
-// 🎯 TABLE RENDER (EXPORT FORMAT)
-function renderTable(data) {
-  let el = document.getElementById("table");
-  if (!el) return;
-
-  let html = "<table><tr>";
-
-  // EXPORT HEADERS
-  exportHeaders.forEach(h => {
-    html += `<th>${h}</th>`;
-  });
-
-  // EXTRA
-  html += "<th>SP</th><th>MRP</th><th>Diff</th>";
-
-  html += "</tr>";
-
-  data.forEach(d => {
-    html += "<tr>";
-
-    exportHeaders.forEach(h => {
-      html += `<td>${d.raw[h] || ""}</td>`;
-    });
-
-    html += `
-      <td>${d.sp}</td>
-      <td>${d.mrp.toFixed(2)}</td>
-      <td>${d.diff.toFixed(2)}</td>
-    `;
-
-    html += "</tr>";
-  });
-
-  html += "</table>";
-  el.innerHTML = html;
-}
-
-// 🎛️ FILTERS
-function populateFilters(brands, statuses) {
-  let b = document.getElementById("brandFilter");
-  let s = document.getElementById("statusFilter");
-
-  if (!b) return;
-
-  b.innerHTML = `<option value="">All Brands</option>`;
-  s.innerHTML = `<option value="">All Status</option>`;
-
-  brands.forEach(v => b.innerHTML += `<option>${v}</option>`);
-  statuses.forEach(v => s.innerHTML += `<option>${v}</option>`);
-}
-
-document.addEventListener("change", function(e) {
-  if (e.target.id === "brandFilter" || e.target.id === "statusFilter") {
-
-    let brand = document.getElementById("brandFilter").value;
-    let status = document.getElementById("statusFilter").value;
-
-    let filtered = globalData.filter(d =>
-      (!brand || d.raw["Brand"] === brand) &&
-      (!status || d.raw["Status"] === status)
-    );
-
-    renderTable(filtered);
-  }
-});
-
-// 📤 EXPORT
-function exportExcel() {
-  const ws = XLSX.utils.json_to_sheet(globalData.map(d => ({
-    ...d.raw,
-    SP: d.sp,
-    MRP: d.mrp,
-    Diff: d.diff
-  })));
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Pricing");
-  XLSX.writeFile(wb, "pricing.xlsx");
-}
-
-/* ===== CALC ENGINE ===== */
-
-function calcAll(SP, TP) {
-  let commission = Math.max(SP * 0.36, 180);
-  let taxable = SP / 1.05;
-  let tax = taxable * 0.05;
-
-  let purchaseValue = SP - commission - tax;
-  let purchaseGST = purchaseValue * 0.05;
-  let invoiceValue = purchaseValue + purchaseGST;
-
-  let marketing = SP * 0.03;
-  let dispatch = SP < 500 ? 25 : SP < 1000 ? 30 : 35;
-
-  let net = invoiceValue - marketing - dispatch;
-  let margin = (net - TP) / TP;
-
-  return { commission, tax, marketing, dispatch, net, margin };
-}
-
-function findSP(TP, targetMargin) {
-  let low = TP;
-  let high = TP * 3;
-  let sp;
-
-  for (let i = 0; i < 40; i++) {
-    sp = (low + high) / 2;
-    let margin = calcAll(sp, TP).margin;
-
-    if (Math.abs(margin - targetMargin) < 0.001) break;
-
-    if (margin > targetMargin) high = sp;
-    else low = sp;
-  }
-
-  return Math.round(sp);
+  return {
+    ...r,
+    SP, MRP,
+    BAU_TD,
+    TD_Amount,
+    "Ajio Margin": commission,
+    GST1,
+    "Purchase Price": purchase,
+    GST2,
+    Invoice: invoice,
+    Marketing: marketing,
+    Dispatch: dispatch,
+    Payout: payout,
+    Diff: diff,
+    DiffPct: diffPct
+  };
 }
