@@ -1,56 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Calculator</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
+<input id="jio">
+<input id="tp">
+<input id="margin">
 
-<div class="nav">
-  <a href="index.html">Dashboard</a>
-  <a href="search.html">Search</a>
-  <a href="calculator.html" class="active">Calculator</a>
-</div>
+<button onclick="calc()">Calc</button>
 
-<h2>Single Calculator</h2>
-
-<input id="tp" placeholder="Enter TP">
-<input id="marginSingle" placeholder="Margin %">
-
-<h3 id="spResult"></h3>
-<div id="breakdown"></div>
+<div id="out"></div>
 
 <script src="script.js"></script>
-
 <script>
-function calculateSingle() {
-  let tp = parseFloat(document.getElementById("tp").value);
-  let m = parseFloat(document.getElementById("marginSingle").value) / 100;
+function calc(){
+ let tp = parseFloat(tp.value);
+ let m = margin.value/100;
+ let sp = findSP(tp,m);
+ let d = processRow({TP:tp},m);
 
-  if (isNaN(tp) || isNaN(m)) return;
-
-  let sp = findSP(tp, m);
-  let data = calcAll(sp, tp);
-
-  document.getElementById("spResult").innerText =
-    `SP = ${sp} | MRP = ${(sp*1.6).toFixed(2)}`;
-
-  document.getElementById("breakdown").innerHTML = `
-    <table>
-      <tr><th>Item</th><th>Value</th></tr>
-      <tr><td>Commission</td><td>${data.commission.toFixed(2)}</td></tr>
-      <tr><td>Tax</td><td>${data.tax.toFixed(2)}</td></tr>
-      <tr><td>Marketing</td><td>${data.marketing.toFixed(2)}</td></tr>
-      <tr><td>Dispatch</td><td>${data.dispatch}</td></tr>
-      <tr><td>Net Payout</td><td>${data.net.toFixed(2)}</td></tr>
-      <tr><td>Margin</td><td>${(data.margin*100).toFixed(2)}%</td></tr>
-    </table>
-  `;
+ out.innerHTML = JSON.stringify(d,null,2);
 }
-
-document.getElementById("tp").addEventListener("input", calculateSingle);
-document.getElementById("marginSingle").addEventListener("input", calculateSingle);
 </script>
-
-</body>
-</html>
