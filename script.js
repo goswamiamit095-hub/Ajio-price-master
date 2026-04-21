@@ -65,3 +65,80 @@ function processRow(r, margin) {
     DiffPct: diffPct
   };
 }
+
+function findSP(TP, targetMargin) {
+  let low = TP, high = TP*3, sp;
+
+  for (let i=0;i<40;i++){
+    sp=(low+high)/2;
+    let m = calcMargin(sp,TP);
+    if(m>targetMargin) high=sp;
+    else low=sp;
+  }
+  return Math.round(sp);
+}
+
+function calcMargin(SP, TP){
+  let commission = Math.max(SP*0.36,180);
+  let tax = (SP/1.05)*0.05;
+  let purchase = SP - commission - tax;
+  let invoice = purchase + purchase*0.05;
+  let net = invoice - SP*0.03 - (SP<500?25:SP<1000?30:35);
+  return (net-TP)/TP;
+}
+
+function renderTable(data){
+
+  let search = document.getElementById("search").value?.toLowerCase();
+
+  let html="<table><tr>";
+
+  let headers = Object.keys(data[0]);
+  headers.forEach(h=>html+=`<th>${h}</th>`);
+
+  html+="</tr>";
+
+  data.forEach(d=>{
+
+    if(!d) return;
+
+    if(search && !JSON.stringify(d).toLowerCase().includes(search)) return;
+
+    html+="<tr>";
+
+    headers.forEach(h=>{
+      let val = d[h];
+
+      let cls = "";
+      if(h==="DiffPct"){
+        if(d.Status==="Continue" && val<-17) cls="red";
+        if(d.Status==="Special" && val<-40) cls="red";
+        if(d.Status==="Discontinue" && val<-30) cls="red";
+      }
+
+      html+=`<td class="${cls}">${typeof val==="number"?val.toFixed(2):val}</td>`;
+    });
+
+    html+="</tr>";
+  });
+
+  html+="</table>";
+  document.getElementById("table").innerHTML=html;
+}
+function exportExcel(){
+
+  let ws = XLSX.utils.json_to_sheet(globalData);
+  let wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Data");
+
+  XLSX.writeFile(wb, "pricing.xlsx");
+
+  saveHistory();
+}
+
+function saveHistory(){
+  let hist = JSON.parse(localStorage.getItem("history")||"[]");
+  hist.unshift(new Date().toLocaleString());
+  hist = hist.slice(0,10);
+  localStorage.setItem("history", JSON.stringify(hist));
+}
