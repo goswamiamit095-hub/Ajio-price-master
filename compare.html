@@ -1,0 +1,25 @@
+<input id="tp">
+<input id="m1"><input id="m2"><input id="m3">
+
+<button onclick="cmp()">Compare</button>
+
+<div id="res"></div>
+
+<script src="script.js"></script>
+<script>
+function cmp(){
+ let tp=parseFloat(tp.value);
+
+ let arr=[m1.value,m2.value,m3.value];
+
+ let html="<table>";
+
+ arr.forEach(m=>{
+   let sp=findSP(tp,m/100);
+   html+=`<tr><td>${m}%</td><td>${sp}</td></tr>`;
+ });
+
+ html+="</table>";
+ res.innerHTML=html;
+}
+</script>
