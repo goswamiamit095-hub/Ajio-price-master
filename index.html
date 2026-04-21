@@ -8,28 +8,28 @@
 
 <div class="nav">
   <a href="index.html" class="active">Dashboard</a>
-  <a href="search.html">Search SKU</a>
   <a href="calculator.html">Calculator</a>
+  <a href="compare.html">Compare</a>
 </div>
 
-<h1>Bulk Pricing Tool</h1>
+<h1>Pricing Dashboard</h1>
 
 <div class="controls">
-  <input type="number" id="margin" placeholder="Margin % (e.g. -10)">
-  
+  <input id="margin" placeholder="TP Margin % (-10)">
+  <input id="search" placeholder="Search SKU / Jio">
+
   <select id="brandFilter"></select>
   <select id="statusFilter"></select>
 
-  <button onclick="loadData()">Load Data</button>
-  <button onclick="exportExcel()">Download Excel</button>
+  <button onclick="loadData()">Load</button>
+  <button onclick="exportExcel()">Export</button>
 </div>
 
 <div id="table"></div>
 
-<!-- LIBRARIES -->
-<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="script.js"></script>
+
 </body>
 </html>
