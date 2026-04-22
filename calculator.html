@@ -1,19 +1,29 @@
-<input id="jio">
-<input id="tp">
-<input id="margin">
+<!DOCTYPE html>
+<html>
+<body>
 
-<button onclick="calc()">Calc</button>
+<h2>Calculator</h2>
 
-<div id="out"></div>
+<input id="tp" placeholder="TP">
+<input id="margin" placeholder="Margin">
+
+<button onclick="calc()">Calculate</button>
+
+<pre id="out"></pre>
 
 <script src="script.js"></script>
+
 <script>
 function calc(){
- let tp = parseFloat(tp.value);
- let m = margin.value/100;
- let sp = findSP(tp,m);
- let d = processRow({TP:tp},m);
+ let tp = parseFloat(document.getElementById("tp").value);
+ let m = parseFloat(document.getElementById("margin").value)/100;
 
- out.innerHTML = JSON.stringify(d,null,2);
+ let sp = findSP(tp,m);
+ let data = processRow({TP:tp},m);
+
+ document.getElementById("out").innerText = JSON.stringify(data,null,2);
 }
 </script>
+
+</body>
+</html>
