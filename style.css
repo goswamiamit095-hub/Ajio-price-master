@@ -1,12 +1,4 @@
-body { font-family: Arial; background:#f4f6f9; padding:20px; }
-
-.nav { background:#222; padding:10px; }
-.nav a { color:white; margin-right:15px; text-decoration:none; }
-
-.controls { margin:20px 0; display:flex; gap:10px; }
-
-table { width:100%; border-collapse:collapse; background:white; }
+body { font-family: Arial; padding:20px; }
+table { border-collapse: collapse; width:100%; }
+td,th { border:1px solid #ccc; padding:8px; }
 th { background:#333; color:white; }
-td,th { padding:8px; border:1px solid #ddd; }
-
-.red { background:#ffcccc; }
