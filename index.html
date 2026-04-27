@@ -13,6 +13,16 @@
   <input type="number" id="margin" value="-10">
 
   <button onclick="loadData()">Load Data</button>
+
+  <button onclick="downloadExcel()">Download Excel</button>
+
+  <input type="text" id="search" placeholder="Search..." oninput="applyFilters()">
+
+  <select id="filter" onchange="applyFilters()">
+    <option value="all">All</option>
+    <option value="profit">Profit</option>
+    <option value="loss">Loss</option>
+  </select>
 </div>
 
 <div id="table"></div>
