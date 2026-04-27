@@ -17,7 +17,7 @@ async function loadData() {
         .map(r => processRow(r, margin))
         .filter(r => r !== null);
 
-      renderTable(globalData);
+      applyFilters();
     }
   });
 }
@@ -81,14 +81,12 @@ function renderTable(data){
     headers.forEach(h => {
       let val = d[h];
 
-      // highlight profit/loss
       if(h === "Diff"){
         let color = val >= 0 ? "green" : "red";
         html += `<td style="color:${color};font-weight:bold">${val}</td>`;
       } else {
         html += `<td>${val}</td>`;
       }
-
     });
 
     html += "</tr>";
@@ -128,4 +126,53 @@ function calcMargin(SP, TP){
   let net = invoice - closingFee - shipping;
 
   return (net - TP) / TP;
+}
+
+// 🔍 Search + Filter
+function applyFilters(){
+
+  let search = document.getElementById("search").value.toLowerCase();
+  let filter = document.getElementById("filter").value;
+
+  let filtered = globalData.filter(row => {
+
+    let match = Object.values(row).some(val =>
+      String(val).toLowerCase().includes(search)
+    );
+
+    if(filter === "profit") return match && row.Diff >= 0;
+    if(filter === "loss") return match && row.Diff < 0;
+
+    return match;
+  });
+
+  renderTable(filtered);
+}
+
+// 📥 Excel Download
+function downloadExcel(){
+
+  if(!globalData.length){
+    alert("No data to download");
+    return;
+  }
+
+  let headers = Object.keys(globalData[0]);
+
+  let csv = headers.join(",") + "\n";
+
+  globalData.forEach(row => {
+    let values = headers.map(h => `"${row[h]}"`);
+    csv += values.join(",") + "\n";
+  });
+
+  let blob = new Blob([csv], { type: "text/csv" });
+  let url = URL.createObjectURL(blob);
+
+  let a = document.createElement("a");
+  a.href = url;
+  a.download = "pricing-data.csv";
+  a.click();
+
+  URL.revokeObjectURL(url);
 }
