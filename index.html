@@ -8,24 +8,47 @@
 
 <h2>AJIO Pricing Tool</h2>
 
-<div class="controls">
-  <label>Target Margin (%)</label>
-  <input type="number" id="margin" value="-10">
-
-  <button onclick="loadData()">Load Data</button>
-
-  <button onclick="downloadExcel()">Download Excel</button>
-
-  <input type="text" id="search" placeholder="Search..." oninput="applyFilters()">
-
-  <select id="filter" onchange="applyFilters()">
-    <option value="all">All</option>
-    <option value="profit">Profit</option>
-    <option value="loss">Loss</option>
-  </select>
+<!-- 🔹 MENU -->
+<div class="menu">
+  <button onclick="showTab('dashboard')">Dashboard</button>
+  <button onclick="showTab('calculator')">Calculator</button>
 </div>
 
-<div id="table"></div>
+<!-- 🔹 DASHBOARD -->
+<div id="dashboard">
+
+  <div class="controls">
+    <label>Target Margin (%)</label>
+    <input type="number" id="margin" value="-10">
+
+    <button onclick="loadData()">Load Data</button>
+    <button onclick="downloadExcel()">Download Excel</button>
+  </div>
+
+  <div id="table"></div>
+
+</div>
+
+<!-- 🔹 CALCULATOR -->
+<div id="calculator" style="display:none">
+
+  <h3>Pricing Calculator</h3>
+
+  <div class="calc-box">
+    <h4>TP → SP</h4>
+    <input type="number" id="tpInput" placeholder="Enter TP">
+    <button onclick="calcSP()">Calculate SP</button>
+    <p id="spResult"></p>
+  </div>
+
+  <div class="calc-box">
+    <h4>SP → TP</h4>
+    <input type="number" id="spInput" placeholder="Enter SP">
+    <button onclick="calcTP()">Calculate TP</button>
+    <p id="tpResult"></p>
+  </div>
+
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
 <script src="script.js"></script>
